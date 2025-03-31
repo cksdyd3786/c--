@@ -11,7 +11,9 @@ int main() {
     cin>> numSize;
     
     for(int i=0; i<numSize; i++){
-        if(num%10)
+        if(num%10){
+            
+        }
     }
 
 
