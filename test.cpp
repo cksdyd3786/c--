@@ -1,23 +1,19 @@
 #include <iostream>
-#include <iomanip>
+#include <fstream>
 using namespace std;
 
 int main() {
-    long long int n, num, numSize;
-
-    cout<< "정수 입력: ";
-    cin>> num;
-    cout<< "자릿수 입력: ";
-    cin>> numSize;
+    int n, sum = 0;
     
-    for(int i=1; i<numSize; i++){
-        num /= 10;
-    }
-    if(num==0){
-        cout<< "자릿수 범위를 벗어났습니다.";
-        return 0;
-    }
-    cout<<num%10;
+    ifstream fin;
+    fin.open("a.txt");
 
+    while(fin >> n) {
+        sum += n;
+    }
+
+    fin.close();
+    cout << "합 = " << sum << endl; 
+    
     return 0;
 }
