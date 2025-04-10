@@ -4,43 +4,28 @@
 using namespace std;
 
 int main() {
-    double score, sum = 0.0, cnt = 0.0, ave;
-    double maxscore = -100.0;
-    string name, maxname;
+    ifstream fin("triangle.txt");
+    if(!fin)
+        cerr<< "입력 파일 오픈 실패"<< endl;
+    cerr<< "입력 파일 오픈 성공"<< endl;
 
-    ifstream fin;
-    fin.open("scores.txt");
-    if(!fin){
-        cerr<< "Error opening scores.txt"<< endl;
+    ofstream fout("triangle_result.txt");
+    if(!fout)
+        cerr<< "입력 파일 오픈 실패"<< endl;
+    cerr<< "입력 파일 오픈 성공"<< endl;
+    int num, a, b, c;
+    while(fin>> num>> a>> b>> c){
+        if(a+b>=c || b+c>=a || a+c>=b)
+            fout<< num<< " X"<< endl;
+        else if(a==b && b==c)
+            fout<< num<< " 0 정삼각형"<< endl;
+        else if(a==b || b==c || c==a)
+            fout<< num<< " 0 이등변삼각형"<< endl;
+        else   
+            fout<< num<< " 0"<< endl;
     }
-
-    while(fin >> name >> score){
-        cnt++;
-        sum += score;
-        if(score>maxscore){
-            maxscore = score;
-            maxname = name;
-        }
-    }
-    ave = sum/cnt;
-
+    cout<< "완료. 출력파일을 확인해보세요."<< endl;
     fin.close();
-
-    ofstream fout("result.txt");
-    if(!fout){
-        cerr<< "Error opening result.txt"<< endl;
-    }
-
-    fout<< "총 "<< cnt<< "명"<<endl;
-
-    fout<< fixed<< setprecision(2); 
-    fout<< "합계: "<< sum<< endl;
-    fout<< "평균: "<< ave<< endl;
-    fout<< "최고점: "<< maxname<< " "<< maxscore<<endl;
-
     fout.close();
 
-    cout<< "Results saved in result.txt."<<endl;
-    
-    return 0;
 }
