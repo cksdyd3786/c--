@@ -1,46 +1,50 @@
-import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+def solve_heat_conduction(L, N, Ta, h_prime, T_left, T_right):
+    dx = L / (N + 1)
+    lam = h_prime
+    A = -lam * dx**2 * Ta
+    
+    
+    a = np.ones(N-1)              
+    b = -(2 + lam * dx**2) * np.ones(N)  
+    c = np.ones(N-1)              
+    d = A * np.ones(N)          
+
+    
+    d[0] -= T_left
+    d[-1] -= T_right
+
+    for i in range(1, N):
+        w = a[i-1] / b[i-1]
+        b[i] -= w * c[i-1]
+        d[i] -= w * d[i-1]
+
+    T_internal = np.zeros(N)
+    T_internal[-1] = d[-1] / b[-1]
+    for i in range(N-2, -1, -1):
+        T_internal[i] = (d[i] - c[i] * T_internal[i+1]) / b[i]
+
+    
+    T = np.concatenate(([T_left], T_internal, [T_right]))
+    x = np.linspace(0, L, N+2)
+
+    return x, T
 
 
-Q = 0.3  
-epsilon = 0.26e-3  
-nu = 0.001 / 998  
-g = 9.81  
-hL_per_L_max = 0.006  
+L = 1.0           
+N = 10           
+Ta = 300          
+h_prime = 5.0     
+T_left = 400      
+T_right = 350    
 
+x, T = solve_heat_conduction(L, N, Ta, h_prime, T_left, T_right)
 
-def colebrook(f, Re, epsilon, D):
-    return 1 / math.sqrt(f) + 4.0 * math.log10((epsilon / (3.7 * D)) + (1.26 / (Re * math.sqrt(f))))
-
-
-D = 0.01  
-D_step = 0.001  
-
-while True:
-    
-    A = math.pi * (D ** 2) / 4
-    v = Q / A
-    
-   
-    Re = v * D / nu
-    
-    
-    f_guess = 0.005  
-    for _ in range(20):  
-        f_new = 1 / (4 * (math.log10((epsilon / (3.7 * D)) + (1.26 / (Re * math.sqrt(f_guess))))) ** 2)
-        if abs(f_new - f_guess) < 1e-6:  
-            break
-        f_guess = f_new
-    f = f_guess
-    
-    
-    hL_per_L = f * (2 * v**2) / (D * g)
-    
-    
-    if hL_per_L <= hL_per_L_max:
-        break
-    
-    
-    D += D_step
-
-
-print(f"최소 파이프 내경: {D:.4f} m")
+plt.plot(x, T, marker='o')
+plt.xlabel('x (m)')
+plt.ylabel('Temperature (K)')
+plt.title('온도 분포')
+plt.grid(True)
+plt.show()

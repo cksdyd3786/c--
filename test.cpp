@@ -1,31 +1,50 @@
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-using namespace std;
+import numpy as np
+import matplotlib.pyplot as plt
 
-int main() {
-    ifstream fin("triangle.txt");
-    if(!fin)
-        cerr<< "입력 파일 오픈 실패"<< endl;
-    cerr<< "입력 파일 오픈 성공"<< endl;
+def solve_heat_conduction(L, N, Ta, h_prime, T_left, T_right):
+    dx = L / (N + 1)
+    lam = h_prime
+    A = -lam * dx**2 * Ta
+    
+    
+    a = np.ones(N-1)              
+    b = -(2 + lam * dx**2) * np.ones(N)  
+    c = np.ones(N-1)              
+    d = A * np.ones(N)          
 
-    ofstream fout("triangle_result.txt");
-    if(!fout)
-        cerr<< "입력 파일 오픈 실패"<< endl;
-    cerr<< "입력 파일 오픈 성공"<< endl;
-    int num, a, b, c;
-    while(fin>> num>> a>> b>> c){
-        if(a+b>=c || b+c>=a || a+c>=b)
-            fout<< num<< " X"<< endl;
-        else if(a==b && b==c)
-            fout<< num<< " 0 정삼각형"<< endl;
-        else if(a==b || b==c || c==a)
-            fout<< num<< " 0 이등변삼각형"<< endl;
-        else   
-            fout<< num<< " 0"<< endl;
-    }
-    cout<< "완료. 출력파일을 확인해보세요."<< endl;
-    fin.close();
-    fout.close();
+    
+    d[0] -= T_left
+    d[-1] -= T_right
 
-}
+    for i in range(1, N):
+        w = a[i-1] / b[i-1]
+        b[i] -= w * c[i-1]
+        d[i] -= w * d[i-1]
+
+    T_internal = np.zeros(N)
+    T_internal[-1] = d[-1] / b[-1]
+    for i in range(N-2, -1, -1):
+        T_internal[i] = (d[i] - c[i] * T_internal[i+1]) / b[i]
+
+    
+    T = np.concatenate(([T_left], T_internal, [T_right]))
+    x = np.linspace(0, L, N+2)
+
+    return x, T
+
+
+L = 1.0           
+N = 10           
+Ta = 300          
+h_prime = 5.0     
+T_left = 400      
+T_right = 350    
+
+x, T = solve_heat_conduction(L, N, Ta, h_prime, T_left, T_right)
+
+plt.plot(x, T, marker='o')
+plt.xlabel('x (m)')
+plt.ylabel('Temperature (K)')
+plt.title('온도 분포')
+plt.grid(True)
+plt.show()
