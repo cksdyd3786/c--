@@ -1,2 +1,0 @@
-
-    fout.close();

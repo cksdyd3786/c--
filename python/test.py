@@ -1,50 +1,25 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-def solve_heat_conduction(L, N, Ta, h_prime, T_left, T_right):
-    dx = L / (N + 1)
-    lam = h_prime
-    A = -lam * dx**2 * Ta
-    
-    
-    a = np.ones(N-1)              
-    b = -(2 + lam * dx**2) * np.ones(N)  
-    c = np.ones(N-1)              
-    d = A * np.ones(N)          
+x = np.array([0.6, 1.5, 1.6, 2.5, 3.5])
+fx = np.array([0.9036, 0.3734, 0.3261, 0.08422, 0.01596])
 
-    
-    d[0] -= T_left
-    d[-1] -= T_right
+df_numeric = np.zeros_like(fx)
 
-    for i in range(1, N):
-        w = a[i-1] / b[i-1]
-        b[i] -= w * c[i-1]
-        d[i] -= w * d[i-1]
+for i in range(len(x)):
+    if i == 0:
+        h = x[i+1] - x[i]
+        df_numeric[i] = (fx[i+1] - fx[i]) / h
+    elif i == len(x)-1:
+        h = x[i] - x[i-1]
+        df_numeric[i] = (fx[i] - fx[i-1]) / h
+    else:
+        h1 = x[i] - x[i-1]
+        h2 = x[i+1] - x[i]
+        df_numeric[i] = ((-h2)*fx[i-1] + (h2 - h1)*fx[i] + h1*fx[i+1]) / (h1*h2*(h1 + h2)) * (h1 + h2)
 
-    T_internal = np.zeros(N)
-    T_internal[-1] = d[-1] / b[-1]
-    for i in range(N-2, -1, -1):
-        T_internal[i] = (d[i] - c[i] * T_internal[i+1]) / b[i]
+df_true = -10 * np.exp(-2 * x)
 
-    
-    T = np.concatenate(([T_left], T_internal, [T_right]))
-    x = np.linspace(0, L, N+2)
-
-    return x, T
-
-
-L = 1.0           
-N = 10           
-Ta = 300          
-h_prime = 5.0     
-T_left = 400      
-T_right = 350    
-
-x, T = solve_heat_conduction(L, N, Ta, h_prime, T_left, T_right)
-
-plt.plot(x, T, marker='o')
-plt.xlabel('x (m)')
-plt.ylabel('Temperature (K)')
-plt.title('온도 분포')
-plt.grid(True)
-plt.show()
+print("   x     |  Numeric df  |  True df     | Error")
+print("-----------------------------------------------")
+for i in range(len(x)):
+    print(f"{x[i]:7.2f} | {df_numeric[i]:12.6f} | {df_true[i]:12.6f} | {abs(df_numeric[i] - df_true[i]):.6f}")
