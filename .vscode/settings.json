@@ -9,6 +9,7 @@
         "xlocale": "cpp",
         "iosfwd": "cpp",
         "istream": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "cassert": "cpp"
     }
 }
